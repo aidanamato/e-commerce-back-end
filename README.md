@@ -68,7 +68,7 @@ The base address when running the server is `localhost:3001/api`. This precedes 
 * `GET /tags` - Returns a list of all tags.
 * `GET /tags/:id` - Returns a single tag with the id passed as a parameter.
 * `POST /tags` - Creates a new tag with the id passed as a parameter. The request body should be formatted as follows:
-  * {
+  * {  
     "tag_name": "*tag name here*"  
   }
 * `PUT /tags/:id` - Updates an existing tag. The request body should be formatted the same as `POST /tags`.
