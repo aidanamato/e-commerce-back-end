@@ -15,7 +15,7 @@ This is a RESTful API created with express.js, a MySQL database, and the Sequeli
 * [Authors](#authors)
 * [Questions](#questions)
 
-<div id="installation></div>
+<a id="installation"></a>
 ## Instillation and Setup
 
 This application is replicating the back end of what would be an E-commerce store, and is not actually deployed on the web. In order to test the API yourself, you will need to follow the instructions below to run the server from your local machine.
@@ -53,7 +53,7 @@ The base address when running the server is `localhost:3001/api`. This precedes 
 * `GET /products/:id` - Returns a single product with the id passed as a parameter.
 * `POST /products` - Creates a new Product with the id passed as a parameter. The request body should be formatted as follows:
   * {  
-      "Product_name": "*product name here*"  
+      "product_name": "*product name here*"  
       "price": *product price here*,  
       "stock": *product stock here*,  
       "category_id": *id of category to which product belongs*,  
@@ -68,9 +68,9 @@ The base address when running the server is `localhost:3001/api`. This precedes 
 * `GET /tags` - Returns a list of all tags.
 * `GET /tags/:id` - Returns a single tag with the id passed as a parameter.
 * `POST /tags` - Creates a new tag with the id passed as a parameter. The request body should be formatted as follows:
-  * `{
+  * {
     "tag_name": "*tag name here*"  
-  }`
+  }
 * `PUT /tags/:id` - Updates an existing tag. The request body should be formatted the same as `POST /tags`.
 * `DELETE /tags/:id` - Deletes a tag with the id passed as a parameter.
 
