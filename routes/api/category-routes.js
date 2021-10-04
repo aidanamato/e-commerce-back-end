@@ -52,25 +52,23 @@ router.get('/:id', ({params}, res) => {
 
 // post a new category
 router.post('/', ({body}, res) => {
-  Category.create({
-    category_name: body.category_name
-  })
+  /* body format
+    {
+      category_name: "shoes"
+    }
+  */
+  Category.create(body)
     .then(dbCategoryData => res.json(dbCategoryData))
     .catch(err => res.status(400).json(err));
 });
 
 // update a category
-router.put('/:id', ({params, body}, res) => {
-  Category.update(
-    {
-      category_name: body.category_name
-    },
-    {
+router.put('/:id', ({body, params}, res) => {
+  Category.update(body, {
       where: {
         id: params.id
       }
-    }
-  )
+  })
     .then(dbCategoryData => {
       res.json(dbCategoryData);
     })
@@ -92,7 +90,7 @@ router.delete('/:id', ({params}, res) => {
         res.status(404).json({message: 'No category found with this id'});
         return;
       }
-      res.json({message: 'success'});
+      res.json(dbCategoryData);
     })
       .catch(err => {
         console.log(err);

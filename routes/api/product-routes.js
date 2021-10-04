@@ -58,7 +58,7 @@ router.get('/:id', ({params}, res) => {
 
 // create new product
 router.post('/', ({body}, res) => {
-  /* body should look like this...
+  /* body format
     {
       product_name: "Basketball",
       price: 200.00,
@@ -97,7 +97,7 @@ router.post('/', ({body}, res) => {
 });
 
 // update product
-router.put('/:id', ({params, body}, res) => {
+router.put('/:id', ({body, params}, res) => {
   // update product data
   Product.update(body, {
     where: {
@@ -117,7 +117,7 @@ router.put('/:id', ({params, body}, res) => {
     .then(({dbProductData, productTags}) => {
       // if product tags are being updated
       if (body.tagIds) {
-        // run updateTags static method
+        // call updateTags static method
         return Product.updateTags(productTags, body, params, ProductTag)
           .then(dbTagsData => res.json({
             product_changes: dbProductData, 
@@ -125,6 +125,7 @@ router.put('/:id', ({params, body}, res) => {
           })
         );
       }
+      // if no tags are being updated
       res.json(dbProductData);
     })
     .catch((err) => {
@@ -144,7 +145,7 @@ router.delete('/:id', ({params}, res) => {
         res.status(404).json({message: 'No product found with this id'});
         return;
       }
-      res.json({message: 'success'});
+      res.json(dbProductData);
     })
     .catch(err => {
       console.log(err);
