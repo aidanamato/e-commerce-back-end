@@ -6,28 +6,41 @@ const sequelize = require('../config/connection');
 // Initialize Product model (table) by extending off Sequelize's Model class
 class Product extends Model {
   // logic to update product tags in PUT request
-  static updateTags(productTags, body, params) {
+  static async updateTags(productTags, body, params, ProductTag) {
     // get list of current tag_ids
     const productTagIds = productTags.map(({ tag_id }) => tag_id);
+
     // create filtered list of new tag_ids
     const newProductTags = body.tagIds
       .filter((tag_id) => !productTagIds.includes(tag_id))
       .map((tag_id) => {
         return {
-          product_id: params.id,
+          product_id: parseInt(params.id),
           tag_id,
         };
       });
-    // figure out which ones to remove
-    const productTagsToRemove = productTags
-      .filter(({ tag_id }) => !body.tagIds.includes(tag_id))
-      .map(({ id }) => id);
 
-    // run both actions
-    return Promise.all([
+    // if Product currently has 1 or more tags
+    if (productTags.length > 0) {
+      // figure out which ones to remove
+      const productTagsToRemove = productTags
+        .filter(({ tag_id }) => !body.tagIds.includes(tag_id))
+        .map(({ id }) => id);
+
+      // run both actions
+      const promise = await Promise.all([
         ProductTag.destroy({ where: { id: productTagsToRemove } }),
-        ProductTag.bulkCreate(newProductTags),
+        ProductTag.bulkCreate(newProductTags)
       ]);
+      console.log(promise[1]);
+      return {
+        deleted: promise[0],
+        created: promise[1]
+      };
+    }
+
+    const promise = await ProductTag.bulkCreate(newProductTags)
+    return {created: promise};
   }
 }
 

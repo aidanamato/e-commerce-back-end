@@ -5,8 +5,6 @@ const { Product, Category, Tag, ProductTag } = require('../../models');
 
 // get all products
 router.get('/', (req, res) => {
-  // find all products
-  // be sure to include its associated Category and Tag data
   Product.findAll({
     attributes: {
       exclude: ['category_id']
@@ -14,6 +12,9 @@ router.get('/', (req, res) => {
     include: [
       {
         model: Category,
+      },
+      {
+        model: Tag
       }
     ]
   })
@@ -25,9 +26,7 @@ router.get('/', (req, res) => {
 });
 
 // get one product
-router.get('/:id', (req, res) => {
-  // find a single product by its `id`
-  // be sure to include its associated Category and Tag data
+router.get('/:id', ({params}, res) => {
   Product.findOne({
     where: {
       id: params.id
@@ -38,6 +37,9 @@ router.get('/:id', (req, res) => {
     include: [
       {
         model: Category
+      },
+      {
+        model: Tag
       }
     ]
   })
@@ -68,7 +70,7 @@ router.post('/', ({body}, res) => {
     }
   */
   Product.create(body)
-    .then(dbProductData => {
+    .then((dbProductData) => {
       // if there's product tags, we need to create pairings to bulk create in the ProductTag model
       if (body.tagIds) {
         const productTagIdArr = body.tagIds.map(tag_id => {
@@ -77,12 +79,17 @@ router.post('/', ({body}, res) => {
             tag_id,
           };
         });
-        return ProductTag.bulkCreate(productTagIdArr);
+        return ProductTag.bulkCreate(productTagIdArr)
+          .then(productTagIds => res.json(
+            {
+              newProduct: dbProductData, 
+              tags: productTagIds
+            })
+          );
       }
       // if no product tags, just respond
-      res.status(200).json(dbProductData);
+      res.json(dbProductData);
     })
-    .then(productTagIds => res.status(200).json(productTagIds))
     .catch(err => {
       console.log(err);
       res.status(400).json(err);
@@ -97,35 +104,27 @@ router.put('/:id', ({params, body}, res) => {
       id: params.id,
     },
   })
-    .then(dbProductData => {
-      // find all associated tags from ProductTag
-      // return ProductTag.findAll({ where: { product_id: params.id } });
-      return {
-        productTags: [],
-        dbProductData
-      };
-    })
-    .then(({productTags, dbProductData}) => {
-      // if product tags are being updated
-      if (productTags.length > 0) {
-        // run updateTags static method
-        return {
-          updatedProductTags: Product.updateTags(productTags, body, params),
-          dbProductData
-        };
-      }
-      return {dbProductData};
-    })
-    .then(({dbProductData, updatedProductTags}) => {
-      // if product tags were updated, return ProductTags and Product data
-      if (updatedProductTags) {
-        res.json({
-          updatedProductTags,
-          dbProductData
-        });
+    .then(async dbProductData => {
+      if (!dbProductData) {
+        res.status(404).end();
         return;
       }
-      // if product tags were not updated just return Product data
+      // find all associated tags from ProductTag
+      const productTags = await ProductTag.findAll({ where: { product_id: params.id } })
+          .then(productTags => productTags);
+      return {dbProductData, productTags};
+    })
+    .then(({dbProductData, productTags}) => {
+      // if product tags are being updated
+      if (body.tagIds) {
+        // run updateTags static method
+        return Product.updateTags(productTags, body, params, ProductTag)
+          .then(dbTagsData => res.json({
+            product_changes: dbProductData, 
+            tag_changes: dbTagsData
+          })
+        );
+      }
       res.json(dbProductData);
     })
     .catch((err) => {
@@ -142,8 +141,10 @@ router.delete('/:id', ({params}, res) => {
   })
     .then(dbProductData => {
       if (!dbProductData) {
-        res.status(404).json({message: 'No product found with this id'})
+        res.status(404).json({message: 'No product found with this id'});
+        return;
       }
+      res.json({message: 'success'});
     })
     .catch(err => {
       console.log(err);
