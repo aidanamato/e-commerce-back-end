@@ -14,7 +14,8 @@ router.get('/', (req, res) => {
         model: Category,
       },
       {
-        model: Tag
+        model: Tag,
+        required: false
       }
     ]
   })
@@ -39,7 +40,8 @@ router.get('/:id', ({params}, res) => {
         model: Category
       },
       {
-        model: Tag
+        model: Tag,
+        required: false
       }
     ]
   })

@@ -74,7 +74,7 @@ The base address when running the server is `localhost:3001/api`. This precedes 
 * `PUT /tags/:id` - Updates an existing tag. The request body should be formatted the same as `POST /tags`.
 * `DELETE /tags/:id` - Deletes a tag with the id passed as a parameter.
 
-[Walkthrough Video](https://watch.screencastify.com/v/MwdqVsAndB9EloZf2FxD)
+### [Walkthrough Video](https://watch.screencastify.com/v/ZQDiURHNmwazRrl0FlzY)
 
 ## License
 
